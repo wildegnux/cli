@@ -79,8 +79,8 @@ export const statusLiveStage = (connector: IConnector) =>
 			channel.statusLiveStage(stream).then((result) => {
 				resolve(result);
 				stream.end();
-			})
-		});
+			}).catch(reject);
+		}).catch(reject);
 	});
 }
 
@@ -91,8 +91,8 @@ export const getRates = (connector: IConnector, paging: any, filter: any = {}) =
 			channel.getRates(stream, paging, filter).then((result) => {
 				resolve(result);
 				stream.end();
-			});
-		});
+			}).catch(reject);
+		}).catch(reject);
 	});
 }
 
@@ -103,8 +103,8 @@ export const clearRates = (connector: IConnector, filter: any = {}) =>
 			channel.clearRates(stream, filter).then((result) => {
 				resolve(result);
 				stream.end();
-			})
-		});
+			}).catch(reject);
+		}).catch(reject);
 	});
 }
 
@@ -123,8 +123,8 @@ export const getCache = async (connector: IConnector, program: string) =>
 			channel.getCache(stream, program).then((result) => {
 				stream.end();
 				resolve(result);
-			})
-		});
+			}).catch(reject);
+		}).catch(reject);
 	});
 }
 
@@ -143,8 +143,8 @@ export const clearCache = (connector: IConnector, program: string, filter: any =
 			channel.clearCache(stream, program, filter).then((result) => {
 				stream.end();
 				resolve(result);
-			})
-		});
+			}).catch(reject);
+		}).catch(reject);
 	});
 }
 
@@ -167,8 +167,8 @@ export const reloadConfig = (connector: IConnector, program: string) =>
 			channel.reloadConfig(stream).then(() => {
 				stream.end();
 				resolve(undefined);
-			})
-		});
+			}).catch(reject);
+		}).catch(reject);
 	});
 }
 
@@ -219,6 +219,6 @@ export const run = async (connector: IConnector, entrypoint: string) =>
 					appconf: generate().smtpd
 				}));
 			});
-		});
+		}).catch(reject);
 	});
 }
