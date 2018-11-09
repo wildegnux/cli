@@ -74,11 +74,9 @@ const sendAndWait = async(stream: NodeJS.ReadWriteStream, data: Buffer) =>
 			buffer = Buffer.concat([buffer, data]);
 			if (buffer.length > 0)
 			{
-				if (buffer[0] == '.'.charCodeAt(0))
-					resolve(undefined);
 				if (buffer[0] == '+'.charCodeAt(0) || buffer[0] == 'E'.charCodeAt(0))
 				{
-					if (buffer.length > 9)
+					if (buffer.length >= 9)
 					{
 						const len = buffer.readUIntLE(1, 6);
 						if (buffer.readUInt16LE(7) != 0)
@@ -94,6 +92,8 @@ const sendAndWait = async(stream: NodeJS.ReadWriteStream, data: Buffer) =>
 						if (buffer.length > len + 9)
 							reject(Error("Too much data in response"));
 					}
+				} else {
+					reject(Error('Invalid protocol response: ' + buffer[0]));
 				}
 			}
 		});
@@ -111,14 +111,9 @@ export const setupIPC = (stream: NodeJS.ReadWriteStream, resolve: Function, reje
 		buffer = Buffer.concat([buffer, data]);
 		if (buffer.length > 0)
 		{
-			if (buffer[0] == '.'.charCodeAt(0))
-			{
-				buffer = Buffer.alloc(0);
-				return resolve(undefined);
-			}
 			if (buffer[0] == '+'.charCodeAt(0) || buffer[0] == 'E'.charCodeAt(0))
 			{
-				if (buffer.length > 9)
+				if (buffer.length >= 9)
 				{
 					const len = buffer.readUIntLE(1, 6);
 					if (buffer.readUInt16LE(7) != 0)
@@ -139,6 +134,8 @@ export const setupIPC = (stream: NodeJS.ReadWriteStream, resolve: Function, reje
 					if (buffer.length > len + 9)
 						return reject(Error("Too much data in response"));
 				}
+			} else {
+				return reject(Error('Invalid protocol response: ' + buffer[0]));
 			}
 		}
 	});
