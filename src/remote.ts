@@ -77,9 +77,12 @@ export const statusLiveStage = (connector: IConnector) =>
 	return new Promise((resolve, reject) => {
 		connector.openChannel(smtpd_socket).then((stream) => {
 			channel.statusLiveStage(stream).then((result) => {
-				resolve(result);
 				stream.end();
-			}).catch(reject);
+				resolve(result);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
 		}).catch(reject);
 	});
 }
@@ -89,9 +92,12 @@ export const getRates = (connector: IConnector, paging: any, filter: any = {}) =
 	return new Promise((resolve, reject) => {
 		connector.openChannel(rated_socket).then((stream) => {
 			channel.getRates(stream, paging, filter).then((result) => {
-				resolve(result);
 				stream.end();
-			}).catch(reject);
+				resolve(result);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
 		}).catch(reject);
 	});
 }
@@ -101,9 +107,12 @@ export const clearRates = (connector: IConnector, filter: any = {}) =>
 	return new Promise((resolve, reject) => {
 		connector.openChannel(rated_socket).then((stream) => {
 			channel.clearRates(stream, filter).then((result) => {
-				resolve(result);
 				stream.end();
-			}).catch(reject);
+				resolve(result);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
 		}).catch(reject);
 	});
 }
@@ -123,7 +132,10 @@ export const getCache = async (connector: IConnector, program: string) =>
 			channel.getCache(stream, program).then((result) => {
 				stream.end();
 				resolve(result);
-			}).catch(reject);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
 		}).catch(reject);
 	});
 }
@@ -143,7 +155,10 @@ export const clearCache = (connector: IConnector, program: string, filter: any =
 			channel.clearCache(stream, program, filter).then((result) => {
 				stream.end();
 				resolve(result);
-			}).catch(reject);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
 		}).catch(reject);
 	});
 }
@@ -167,7 +182,10 @@ export const reloadConfig = (connector: IConnector, program: string) =>
 			channel.reloadConfig(stream).then(() => {
 				stream.end();
 				resolve(undefined);
-			}).catch(reject);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
 		}).catch(reject);
 	});
 }
