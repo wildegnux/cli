@@ -108,7 +108,7 @@ export const run = (base: string | null = '.', force: boolean = false) =>
 		servers: [
 			{
 				id: 'inbound',
-				transport: 'in',
+				transport: 'inbound',
 				phases: {
 					connect: {
 						hook: 'inbound'
