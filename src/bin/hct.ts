@@ -115,7 +115,8 @@ program
 					utils.formattedOutput({
 						id: status.id,
 						expired: status.expired,
-						count: status.count.toNumber()
+						count: status.count.toNumber(),
+						time: status.time.toNumber()
 					}, options.format);
 				}
 				connector.dispose();

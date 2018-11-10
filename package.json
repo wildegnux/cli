@@ -1,6 +1,6 @@
 {
 	"name": "@halon/cli",
-	"version": "5.0.3",
+	"version": "5.0.4",
 	"description": "Halon CLI",
 	"scripts": {
 		"build": "tsc && chmod a+x ./dist/bin/hct.js && chmod a+x ./dist/bin/hot.js"
@@ -25,8 +25,8 @@
 	"homepage": "https://github.com/halon/cli#readme",
 	"dependencies": {
 		"@halon/json-schemas": "^5.0.0",
-		"@halon/protobuf-schemas": "^5.0.0",
-		"@types/node": "^10.12.2",
+		"@halon/protobuf-schemas": "^5.0.1",
+		"@types/node": "^10.12.5",
 		"@types/ssh2": "^0.5.36",
 		"@types/yaml": "^1.0.0",
 		"cli-highlight": "^2.0.0",
@@ -36,6 +36,6 @@
 		"protobufjs": "^6.8.8",
 		"ssh2": "^0.6.1",
 		"typescript": "^3.1.6",
-		"yaml": "^1.0.0"
+		"yaml": "^1.0.1"
 	}
 }
