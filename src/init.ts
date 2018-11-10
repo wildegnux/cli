@@ -122,7 +122,6 @@ export const run = (base: string | null = '.', force: boolean = false) =>
 		transports: [
 			{
 				id: 'inbound',
-				mode: 'inbound',
 				connection: {
 					server: '192.168.0.25'
 				},
