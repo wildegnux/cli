@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
 import * as remote from '../remote';
 import * as utils from '../utils';
+import { Config } from '../config';
 import moment from 'moment';
 import program from 'commander';
 import { ConnectorFactory } from '../factory';
@@ -17,8 +17,7 @@ program
 	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
 	.option('-r, --readable', 'Output human-readable values')
 	.action((options) => {
-		const usersettings = JSON.parse(fs.readFileSync("settings.json").toString());
-		var connector = ConnectorFactory(usersettings);
+		var connector = ConnectorFactory(Config());
 		if (options.clear) {
 			remote.clearRates(connector).then((response: any) => {
 				if (typeof response !== 'undefined') {
@@ -77,8 +76,7 @@ program
 	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
 	.option('-r, --readable', 'Output human-readable values')
 	.action((program, options) => {
-		const usersettings = JSON.parse(fs.readFileSync("settings.json").toString());
-		var connector = ConnectorFactory(usersettings);
+		var connector = ConnectorFactory(Config());
 		if (options.clear) {
 			remote.clearCache(connector, program).then((response: any) => {
 				if (typeof response !== 'undefined') {

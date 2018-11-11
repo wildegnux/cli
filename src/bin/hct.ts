@@ -6,6 +6,7 @@ import * as init from '../init';
 import * as remote from '../remote';
 import * as build from '../build';
 import * as utils from '../utils';
+import { Config } from '../config';
 import program from 'commander';
 import { ConnectorFactory } from '../factory';
 
@@ -31,8 +32,7 @@ program
 	.description('Validate a HSL script')
 	.action((file, options) => {
 		const syntaxobject = build.syntax(file);
-		const usersettings = JSON.parse(fs.readFileSync("settings.json").toString());
-		var connector = ConnectorFactory(usersettings);
+		var connector = ConnectorFactory(Config());
 		remote.syntax(connector, syntaxobject).then((syntaxerror) => {
 			if (syntaxerror) {
 				console.log(syntaxerror);
@@ -51,8 +51,7 @@ program
 	.command('run <file>')
 	.description('Run a HSL script')
 	.action((file, options) => {
-		const usersettings = JSON.parse(fs.readFileSync("settings.json").toString());
-		var connector = ConnectorFactory(usersettings);
+		var connector = ConnectorFactory(Config());
 		remote.run(connector, file).then((res: any) => {
 			process.exitCode = res.code;
 			connector.dispose();
@@ -67,8 +66,7 @@ program
 	.command('reload <program>')
 	.description('Reload a program')
 	.action((program, options) => {
-		const usersettings = JSON.parse(fs.readFileSync("settings.json").toString());
-		var connector = ConnectorFactory(usersettings);
+		var connector = ConnectorFactory(Config());
 		remote.reloadConfig(connector, program).then(() => {
 			console.log("OK");
 			connector.dispose();
@@ -89,13 +87,13 @@ program
 			console.error('Invalid command');
 			process.exit(2);
 		}
-		const usersettings = JSON.parse(fs.readFileSync("settings.json").toString());
-		var connector = ConnectorFactory(usersettings);
+		const settings = Config();
+		var connector = ConnectorFactory(settings);
 		if (command == 'start') {
 			const config = fs.readFileSync(path.join("dist", "smtpd-app.yaml")).toString();
 			const config2 = fs.readFileSync(path.join("dist", "queued-app.yaml")).toString();
-			const conditions = usersettings.livestage && usersettings.livestage.conditions ? usersettings.livestage.conditions : {};
-			const id = usersettings.livestage && usersettings.livestage.id ? usersettings.livestage.id : "abcd";
+			const conditions = settings.livestage && settings.livestage.conditions ? settings.livestage.conditions : {};
+			const id = settings.livestage && settings.livestage.id ? settings.livestage.id : "abcd";
 			remote.startLiveStage(connector, id, conditions, config, config2).then(() => {
 				console.log('Live stage started');
 				connector.dispose();
