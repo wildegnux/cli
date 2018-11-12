@@ -1,13 +1,14 @@
 {
 	"name": "@halon/cli",
-	"version": "5.0.6",
+	"version": "5.0.7",
 	"description": "Halon CLI",
 	"scripts": {
-		"build": "tsc && chmod a+x ./dist/bin/hct.js && chmod a+x ./dist/bin/hot.js"
+		"build": "tsc && chmod a+x ./dist/bin/hct.js && chmod a+x ./dist/bin/hot.js && chmod a+x ./dist/bin/hqt.js"
 	},
 	"bin": {
 		"hct": "./dist/bin/hct.js",
-		"hot": "./dist/bin/hot.js"
+		"hot": "./dist/bin/hot.js",
+		"hqt": "./dist/bin/hqt.js"
 	},
 	"repository": {
 		"type": "git",
@@ -32,13 +33,17 @@
 		"fs": "0.0.1-security",
 		"moment": "^2.22.2",
 		"ora": "^3.0.0",
+		"pg": "^7.6.1",
+		"pg-hstore": "^2.3.2",
 		"protobufjs": "^6.8.8",
+		"sequelize": "^4.41.2",
 		"ssh2": "^0.6.1",
 		"yaml": "^1.0.1"
 	},
 	"devDependencies": {
 		"@types/node": "^10.12.5",
 		"@types/ora": "^1.3.4",
+		"@types/sequelize": "^4.27.30",
 		"@types/ssh2": "^0.5.36",
 		"@types/yaml": "^1.0.0",
 		"typescript": "^3.1.6"
