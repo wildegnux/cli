@@ -105,12 +105,19 @@ const spinnerUntilDone = (connector: IConnector) =>
 					break;
 				}
 				isRunning = true;
+				var count = r.count;
+				if (r.conditions && r.conditions.count)
+					count += "/" + r.conditions.count;
+				var time = r.time;
+				if (r.conditions && r.conditions.time) {
+					time += "/" + r.conditions.time;
+				}
 				if (r.expired == true) {
-					spinner.succeed(r.id + ': ' + r.count + ' connection(s)');
+					spinner.succeed(r.id + ': ' + count + ' connection(s), ' + time + 's runtime');
 					resolve();
 					break;
 				}
-				spinner.text = r.id + ': ' + r.count + ' connection(s), ' + r.time + 's runtime';
+				spinner.text = r.id + ': ' + count + ' connection(s), ' + time + 's runtime';
 				await sleep(1000);
 			}
 		} catch (e) {

@@ -26,7 +26,7 @@
 	"homepage": "https://github.com/halon/cli#readme",
 	"dependencies": {
 		"@halon/json-schemas": "^5.0.1",
-		"@halon/protobuf-schemas": "^5.0.1",
+		"@halon/protobuf-schemas": "^5.0.2",
 		"ajv": "^6.5.5",
 		"cli-highlight": "^2.0.0",
 		"commander": "^2.19.0",
