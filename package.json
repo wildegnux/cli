@@ -1,6 +1,6 @@
 {
 	"name": "@halon/cli",
-	"version": "5.0.5",
+	"version": "5.0.6",
 	"description": "Halon CLI",
 	"scripts": {
 		"build": "tsc && chmod a+x ./dist/bin/hct.js && chmod a+x ./dist/bin/hot.js"
@@ -24,8 +24,9 @@
 	},
 	"homepage": "https://github.com/halon/cli#readme",
 	"dependencies": {
-		"@halon/json-schemas": "^5.0.0",
+		"@halon/json-schemas": "^5.0.1",
 		"@halon/protobuf-schemas": "^5.0.1",
+		"ajv": "^6.5.5",
 		"cli-highlight": "^2.0.0",
 		"commander": "^2.19.0",
 		"fs": "0.0.1-security",

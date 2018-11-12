@@ -24,8 +24,14 @@ program
 	.command('build')
 	.description('Build the configuration files')
 	.action((options) => {
-		build.run();
-		console.log('Configuration files were created successfully');
+		try {
+			build.run();
+			console.log('Configuration files were created successfully');
+		} catch (e) {
+			console.error(e);
+			console.log('Failed');
+			process.exitCode = 1;
+		}
 	});
 
 program

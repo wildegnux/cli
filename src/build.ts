@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import yaml from 'yaml';
+import * as validate from './validate'
 
 export const syntax = (file: string) =>
 {
@@ -157,8 +158,9 @@ const extractHooks = (config: any) =>
 export const run = (base: string = '.') =>
 {
 	var config = generate(base);
-	fs.writeFileSync(path.join(base, "dist", "queued-app.yaml"), yaml.stringify(config.queued));
+
 	fs.writeFileSync(path.join(base, "dist", "smtpd-app.yaml"), yaml.stringify(config.smtpd));
+	fs.writeFileSync(path.join(base, "dist", "queued-app.yaml"), yaml.stringify(config.queued));
 }
 
 export const generate = (base: string = '.') =>
@@ -239,5 +241,7 @@ export const generate = (base: string = '.') =>
 		}
 		returnValue.queued = config;
 	}
+
+	validate.validate(returnValue);
 	return returnValue;
 }
