@@ -32,7 +32,9 @@ export const protobufLoader = async (file: string, type: string, payload: any) =
 			if (err) reject(err);
 			const pbuftype = root.lookupType(type);
 			const message = pbuftype.decode(payload);
-			resolve(pbuftype.toObject(message));
+			resolve(pbuftype.toObject(message, {
+					longs: Number
+				}));
 		});
 	});
 }

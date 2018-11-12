@@ -21,7 +21,7 @@ program
 		if (options.clear) {
 			remote.clearRates(connector).then((response: any) => {
 				if (typeof response !== 'undefined') {
-					const rates = { affected: response.affected.toNumber() };
+					const rates = { affected: response.affected };
 					utils.formattedOutput(rates, options.format);
 				}
 				connector.dispose();
@@ -41,8 +41,8 @@ program
 					let rates: any = [];
 					if (options.readable) {
 						rates = response.item.map((rate: any) => {
-							rate.count = rate.count.toNumber();
-							rate.localcount = rate.localcount.toNumber();
+							rate.count = rate.count;
+							rate.localcount = rate.localcount;
 							rate['rate (#/s)'] = (rate.oldest - rate.newest) && rate.count > 1 ? Number((rate.count / (rate.oldest - rate.newest)).toPrecision(3)) : 'n/a',
 							rate.interval = (rate.oldest - rate.newest) ? moment().subtract(rate.newest, 'seconds').from(moment().subtract(rate.oldest, 'seconds'), true) : 'n/a',
 							rate.newest = moment().subtract(rate.newest, 'seconds').fromNow();
@@ -51,10 +51,10 @@ program
 						});
 					} else {
 						rates = response.item.map((rate: any) => {
-							rate.count = rate.count.toNumber();
-							rate.localcount = rate.localcount.toNumber();
-							rate.oldest = rate.oldest.toNumber();
-							rate.newest = rate.newest.toNumber();
+							rate.count = rate.count;
+							rate.localcount = rate.localcount;
+							rate.oldest = rate.oldest;
+							rate.newest = rate.newest;
 							return rate;
 						});
 					}
@@ -80,7 +80,7 @@ program
 		if (options.clear) {
 			remote.clearCache(connector, program).then((response: any) => {
 				if (typeof response !== 'undefined') {
-					const cache = { affected: response.affected.toNumber() };
+					const cache = { affected: response.affected };
 					utils.formattedOutput(cache, options.format);
 				}
 				connector.dispose();
@@ -95,21 +95,21 @@ program
 					let cache: any = [];
 					if (options.readable) {
 						cache = response.item.map((item: any) => {
-							item.maxsize = item.maxsize.toNumber();
-							item.size = item.size.toNumber();
-							item.hits = item.hits.toNumber();
-							item.misses = item.misses.toNumber();
-							item.drops = item.drops.toNumber();
+							item.maxsize = item.maxsize;
+							item.size = item.size;
+							item.hits = item.hits;
+							item.misses = item.misses;
+							item.drops = item.drops;
 							item.hitrate = Math.round(((Number(item.hits) / (Number(item.hits) + Number(item.misses))) * 100)) + '%';
 							return item;
 						});
 					} else {
 						cache = response.item.map((item: any) => {
-							item.maxsize = item.maxsize.toNumber();
-							item.size = item.size.toNumber();
-							item.hits = item.hits.toNumber();
-							item.misses = item.misses.toNumber();
-							item.drops = item.drops.toNumber();
+							item.maxsize = item.maxsize;
+							item.size = item.size;
+							item.hits = item.hits;
+							item.misses = item.misses;
+							item.drops = item.drops;
 							return item;
 						});
 					}

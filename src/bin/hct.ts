@@ -123,7 +123,6 @@ const spinnerUntilDone = (connector: IConnector) =>
 program
 	.command('livestage <command>')
 	.description('Manage the live staging')
-	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
 	.option('-w, --watch', 'Watch mode (while running)')
 	.action((command, options) => {
 		const commands = ['start', 'status', 'cancel'];
@@ -184,12 +183,7 @@ program
 						console.log("No live stage is running");
 						process.exitCode = 1;
 					} else {
-						utils.formattedOutput({
-							id: status.id,
-							expired: status.expired,
-							count: status.count.toNumber(),
-							time: status.time.toNumber()
-						}, options.format);
+						utils.formattedOutput(status, 'json');
 					}
 					connector.dispose();
 				}).catch((error) => {
