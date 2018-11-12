@@ -7,8 +7,9 @@ import * as remote from '../remote';
 import * as build from '../build';
 import * as utils from '../utils';
 import { Config } from '../config';
+import ora from 'ora';
 import program from 'commander';
-import { ConnectorFactory } from '../factory';
+import { ConnectorFactory, IConnector } from '../factory';
 
 program
 	.command('init')
@@ -77,10 +78,47 @@ program
 		});
 	});
 
+
+const spinnerUntilDone = (connector: IConnector) =>
+{
+	return new Promise(async (resolve, reject) => {
+		const sleep = (ms: number) => {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		};
+		var isRunning = false;
+		const spinner = ora({ text: 'Loading...' }).start();
+		try {
+			while (true) {
+				var r : any = await remote.statusLiveStage(connector);
+				if (!r) {
+					if (!isRunning)
+						spinner.fail('No live stage is running');
+					else
+						spinner.stopAndPersist();
+					resolve();
+					break;
+				}
+				isRunning = true;
+				if (r.expired == true) {
+					spinner.succeed(r.id + ': ' + r.count + ' connection(s)');
+					resolve();
+					break;
+				}
+				spinner.text = r.id + ': ' + r.count + ' connection(s), ' + r.time + 's runtime';
+				await sleep(1000);
+			}
+		} catch (e) {
+			spinner.fail(e);
+			reject();
+		}
+	});
+}
+
 program
 	.command('livestage <command>')
 	.description('Manage the live staging')
 	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
+	.option('-w, --watch', 'Watch mode (while running)')
 	.action((command, options) => {
 		const commands = ['start', 'status', 'cancel'];
 		if (!commands.includes(command)) {
@@ -95,8 +133,30 @@ program
 			const conditions = settings.livestage && settings.livestage.conditions ? settings.livestage.conditions : {};
 			const id = settings.livestage && settings.livestage.id ? settings.livestage.id : "abcd";
 			remote.startLiveStage(connector, id, conditions, config, config2).then(() => {
-				console.log('Live stage started');
-				connector.dispose();
+				if (options.watch) {
+					var interrupted = false;
+					process.on('SIGINT', () => {
+						remote.cancelLiveStage(connector).then(() => {
+							interrupted = true;
+						}).catch((error) => {
+							console.error(error);
+							connector.dispose();
+							process.exitCode = 2;
+						});
+					});
+					spinnerUntilDone(connector).then(() => {
+						if (interrupted)
+							console.log('Live stage interrupted');
+						connector.dispose();
+					}).catch(() => {
+						console.log('Live stage error');
+						connector.dispose();	
+						process.exitCode = 2;
+					});
+				} else {
+					console.log('Live stage started');
+					connector.dispose();	
+				}
 			}).catch((error) => {
 				console.error(error);
 				connector.dispose();
@@ -104,25 +164,34 @@ program
 			});
 		}
 		if (command == 'status') {
-			remote.statusLiveStage(connector).then((status: any) => {
-				if (!status)
-				{
-					console.log("No live stage is running");
-					process.exitCode = 1;
-				} else {
-					utils.formattedOutput({
-						id: status.id,
-						expired: status.expired,
-						count: status.count.toNumber(),
-						time: status.time.toNumber()
-					}, options.format);
-				}
-				connector.dispose();
-			}).catch((error) => {
-				console.error(error);
-				connector.dispose();
-				process.exitCode = 2;
-			})
+			if (options.watch) {
+				spinnerUntilDone(connector).then(() => {
+					connector.dispose();
+				}).catch(() => {
+					connector.dispose();	
+					process.exitCode = 2;
+				});
+			} else {
+				remote.statusLiveStage(connector).then((status: any) => {
+					if (!status)
+					{
+						console.log("No live stage is running");
+						process.exitCode = 1;
+					} else {
+						utils.formattedOutput({
+							id: status.id,
+							expired: status.expired,
+							count: status.count.toNumber(),
+							time: status.time.toNumber()
+						}, options.format);
+					}
+					connector.dispose();
+				}).catch((error) => {
+					console.error(error);
+					connector.dispose();
+					process.exitCode = 2;
+				})
+			}
 		}
 		if (command == 'cancel') {
 			remote.cancelLiveStage(connector).then(() => {
