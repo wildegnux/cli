@@ -21,10 +21,11 @@ export const syntax = async (connector: IConnector, syntax: any) =>
 			{
 				case 0: resolve(undefined); break;
 				case 1: resolve(yaml.parse(stderr.toString())); break;
-				default: reject(Error("hsl-lint exited with code: " + code));
+				default: reject(Error("hsl-lint exited with code: " + code + ", stderr: " + stderr.toString()));
 			}
 		});
 		program.on('data', (data: Buffer) => {
+			console.log(data);
 		});
 		program.stderr.on('data', (data: Buffer) => {
 			stderr = Buffer.concat([stderr, data]);
@@ -232,10 +233,9 @@ export const run = async (connector: IConnector, entrypoint: string) =>
 				program.stderr.on('data', (data: Buffer) => {
 					process.stderr.write(data.toString());
 				});
-				program.stdin.end(yaml.stringify({
-					fileid: entrypoint,
-					appconf: generate().smtpd
-				}));
+				var config : any = generate().smtpd;
+				config.__entrypoint = 'include "' + entrypoint + '";';
+				program.stdin.end(yaml.stringify(config));
 			});
 		}).catch(reject);
 	});
