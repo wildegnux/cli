@@ -17,7 +17,7 @@ program
 	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
 	.option('-r, --readable', 'Output human-readable values')
 	.action((options) => {
-		var connector = ConnectorFactory(Config());
+		var connector = ConnectorFactory(Config(program.settings));
 		if (options.clear) {
 			remote.clearRates(connector).then((response: any) => {
 				if (typeof response !== 'undefined') {
@@ -75,10 +75,10 @@ program
 	.option('-c, --clear', 'Clear the HSL cache')
 	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
 	.option('-r, --readable', 'Output human-readable values')
-	.action((program, options) => {
-		var connector = ConnectorFactory(Config());
+	.action((app, options) => {
+		var connector = ConnectorFactory(Config(program.settings));
 		if (options.clear) {
-			remote.clearCache(connector, program).then((response: any) => {
+			remote.clearCache(connector, app).then((response: any) => {
 				if (typeof response !== 'undefined') {
 					const cache = { affected: response.affected };
 					utils.formattedOutput(cache, options.format);
@@ -90,7 +90,7 @@ program
 				process.exitCode = 2;
 			});
 		} else {
-			remote.getCache(connector, program).then((response: any) => {
+			remote.getCache(connector, app).then((response: any) => {
 				if (typeof response !== 'undefined' && response.item && response.item.length) {
 					let cache: any = [];
 					if (options.readable) {
@@ -131,5 +131,6 @@ program
 		process.exitCode = 2;
 	});
 
+program.option('-s, --settings [settings.json]', 'Specify settings file', 'settings.json');
 program.parse(process.argv);
 if (!program.args.length) program.help();

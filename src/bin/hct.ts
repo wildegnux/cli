@@ -39,7 +39,7 @@ program
 	.description('Validate a HSL script')
 	.action((file, options) => {
 		const syntaxobject = build.syntax(file);
-		var connector = ConnectorFactory(Config());
+		var connector = ConnectorFactory(Config(program.settings));
 		remote.syntax(connector, syntaxobject).then((syntaxerror) => {
 			if (syntaxerror) {
 				console.log(syntaxerror);
@@ -58,7 +58,7 @@ program
 	.command('run <file>')
 	.description('Run a HSL script')
 	.action((file, options) => {
-		var connector = ConnectorFactory(Config());
+		var connector = ConnectorFactory(Config(program.settings));
 		remote.run(connector, file).then((res: any) => {
 			process.exitCode = res.code;
 			connector.dispose();
@@ -72,9 +72,9 @@ program
 program
 	.command('reload <program>')
 	.description('Reload a program')
-	.action((program, options) => {
-		var connector = ConnectorFactory(Config());
-		remote.reloadConfig(connector, program).then(() => {
+	.action((app, options) => {
+		var connector = ConnectorFactory(Config(program.settings));
+		remote.reloadConfig(connector, app).then(() => {
 			console.log("OK");
 			connector.dispose();
 		}).catch((error) => {
@@ -137,7 +137,7 @@ program
 			console.error('Invalid command');
 			process.exit(2);
 		}
-		const settings = Config();
+		const settings = Config(program.settings);
 		var connector = ConnectorFactory(settings);
 		if (command == 'start') {
 			const config = fs.readFileSync(path.join("dist", "smtpd-app.yaml")).toString();
@@ -219,5 +219,6 @@ program
 		process.exitCode = 2;
 	});
 
+program.option('-s, --settings [settings.json]', 'Specify settings file', 'settings.json');
 program.parse(process.argv);
 if (!program.args.length) program.help();

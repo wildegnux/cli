@@ -10,7 +10,7 @@ program
 	.description('Return metric information about the mail queue')
 	.option('-f, --format <format>', 'The output format to use (json|table)', 'json')
 	.action((metric, options) => {
-		let connector = db.Connector(Config());
+		let connector = db.Connector(Config(program.settings));
 		if (metric === 'bytes') {
 			db.getQueueSize(connector).then((response: any[]) => {
 				connector.close();
@@ -45,5 +45,6 @@ program
 		process.exitCode = 2;
 	});
 
+program.option('-s, --settings [settings.json]', 'Specify settings file', 'settings.json');
 program.parse(process.argv);
 if (!program.args.length) program.help();
