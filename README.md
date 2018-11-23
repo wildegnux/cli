@@ -34,6 +34,7 @@ CLI tools to manage the Halon e-mail platform.
     ```
     "scripts": {
         "hct": "hct",
-        "hot": "hot"
+        "hot": "hot",
+        "hqt": "hqt"
     }
     ```
