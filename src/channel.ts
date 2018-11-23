@@ -66,6 +66,11 @@ export const clearCache = async (stream: NodeJS.ReadWriteStream, program: string
 		return undefined;
 }
 
+export const discardPrefetchedQueue = async (stream: NodeJS.ReadWriteStream) =>
+{ 
+    await sendAndWait(stream, packRequest("l"));
+}
+
 const sendAndWait = async(stream: NodeJS.ReadWriteStream, data: Buffer) =>
 {
 	return new Promise<Buffer>((resolve, reject) => {

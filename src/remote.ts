@@ -240,3 +240,10 @@ export const run = async (connector: IConnector, entrypoint: string) =>
 		}).catch(reject);
 	});
 }
+
+export const discardPrefetchedQueue = async (connector: IConnector) =>
+{
+	var q = await connector.openChannel(queued_socket);
+	await channel.discardPrefetchedQueue(q);
+	q.end();
+}
