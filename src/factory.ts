@@ -112,7 +112,10 @@ export const openChannel = async(client: Client, channel: string) =>
 {
 	return new Promise<ClientChannel>((resolve, reject) => {
 		client.openssh_forwardOutStreamLocal(channel, (err, stream) => {
-			if (err) reject(err);
+			if (err) {
+                client.end();
+                reject(err);
+            }
 			resolve(stream);
 		});
 	});
