@@ -71,6 +71,16 @@ export const discardPrefetchedQueue = async (stream: NodeJS.ReadWriteStream) =>
     await sendAndWait(stream, packRequest("l"));
 }
 
+export const getActiveQueue = async (stream: NodeJS.ReadWriteStream) =>
+{ 
+	const response = await sendAndWait(stream, packRequest("m"));
+
+	if (response)
+		return await pb.protobufLoader('queued.proto', 'queued.ActiveQueueResponse', response);
+	else
+		return undefined;
+}
+
 const sendAndWait = async(stream: NodeJS.ReadWriteStream, data: Buffer) =>
 {
 	return new Promise<Buffer>((resolve, reject) => {

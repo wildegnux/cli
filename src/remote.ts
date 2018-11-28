@@ -247,3 +247,18 @@ export const discardPrefetchedQueue = async (connector: IConnector) =>
 	await channel.discardPrefetchedQueue(q);
 	q.end();
 }
+
+export const getActiveQueue = async (connector: IConnector) =>
+{
+	return new Promise((resolve, reject) => {
+		connector.openChannel(queued_socket).then((stream) => {
+			channel.getActiveQueue(stream).then((result) => {
+				stream.end();
+				resolve(result);
+			}).catch((error) => {
+				stream.end();
+				reject(error);
+			});
+		}).catch(reject);
+	});
+}
