@@ -1,6 +1,6 @@
 {
 	"name": "@halon/cli",
-	"version": "5.0.14",
+	"version": "5.0.15",
 	"description": "Halon CLI",
 	"scripts": {
 		"build": "tsc && chmod a+x ./dist/bin/hct.js && chmod a+x ./dist/bin/hot.js && chmod a+x ./dist/bin/hqt.js"

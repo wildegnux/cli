@@ -55,8 +55,9 @@ export const syntax = (file: string) =>
 	return result;
 }
 
-const readdirSyncRecursive = (dir: string) => {
-	var results : string[] = [];
+const readdirSyncRecursive = (dir: string) =>
+{
+	var results: string[] = [];
 	var list = fs.readdirSync(dir);
 	list.forEach((file) => {
 		file = dir + path.sep + file;
@@ -110,7 +111,7 @@ const extractHooks = (config: any) =>
 					hooks.helo.push(server.phases.helo.hook);
 				if (server.phases.auth && server.phases.auth.hook)
 					hooks.auth.push(server.phases.auth.hook);
-				if (server.phases.mailfrom  && server.phases.mailfrom.hook)
+				if (server.phases.mailfrom && server.phases.mailfrom.hook)
 					hooks.mailfrom.push(server.phases.mailfrom.hook);
 				if (server.phases.rcptto && server.phases.rcptto.hook)
 				{
@@ -157,89 +158,132 @@ const extractHooks = (config: any) =>
 
 export const run = (base: string = '.') =>
 {
-	var config = generate(base);
+	if (!fs.existsSync(path.join(base, "dist")))
+		fs.mkdirSync(path.join(base, "dist"));
 
-	fs.writeFileSync(path.join(base, "dist", "smtpd-app.yaml"), yaml.stringify(config.smtpd));
-	fs.writeFileSync(path.join(base, "dist", "queued-app.yaml"), yaml.stringify(config.queued));
+	const config = generate(base);
+
+	if (config.smtpd) fs.writeFileSync(path.join(base, "dist", "smtpd.yaml"), yaml.stringify(config.smtpd));
+	if (config.queued) fs.writeFileSync(path.join(base, "dist", "queued.yaml"), yaml.stringify(config.queued));
+	if (config.smtpd_app) fs.writeFileSync(path.join(base, "dist", "smtpd-app.yaml"), yaml.stringify(config.smtpd_app));
+	if (config.queued_app) fs.writeFileSync(path.join(base, "dist", "queued-app.yaml"), yaml.stringify(config.queued_app));
+	if (config.httprd) fs.writeFileSync(path.join(base, "dist", "httprd.yaml"), yaml.stringify(config.httprd));
+	if (config.rated) fs.writeFileSync(path.join(base, "dist", "rated.yaml"), yaml.stringify(config.rated));
+	if (config.dlpd) fs.writeFileSync(path.join(base, "dist", "dlpd.yaml"), yaml.stringify(config.dlpd));
+	if (config.dlpd_app) fs.writeFileSync(path.join(base, "dist", "dlpd-app.yaml"), yaml.stringify(config.dlpd_app));
 }
 
 export const generate = (base: string = '.') =>
 {
-	var returnValue = { smtpd: "", queued: ""};
-	var usersettings = JSON.parse(fs.readFileSync(path.join(base, "settings.json")).toString());
-	{
-		if (!fs.existsSync(path.join(base, "dist")))
-			fs.mkdirSync(path.join(base, "dist"));
+	let returnValue: { smtpd?: any, queued?: any, smtpd_app?: any, queued_app?: any, httprd?: any, rated?: any, dlpd?: any, dlpd_app?: any } = {};
+	const usersettings = JSON.parse(fs.readFileSync(path.join(base, "settings.json")).toString());
 
-		var config = yaml.parse(fs.readFileSync(path.join(base, "src", "config", "smtpd-app.yaml")).toString());
-		const hooks = extractHooks(config);
-
-		var entries: any = Object.entries(hooks);
-		for (let [type, value] of entries)
-		{
-			for (let id of value)
-			{
-				var hookfolder = [type];
-				if (type == "eodrcpt")
-					hookfolder = ["eod", "rcpt"];
-				addHook(config, type, {
-					id: id,
-					data: fs.readFileSync(path.join(base, "src", "hooks", ...hookfolder, id + ".hsl")).toString()
-				});
-			}
-		}
-
-		for (let i of readdirSyncRecursive(path.join(base, "src", "files")))
-		{
-			var exclude : string[] = usersettings &&
-			usersettings.smtpd &&
-			usersettings.smtpd.build &&
-			usersettings.smtpd.build.exclude ? usersettings.smtpd.build.exclude : [];
-			if (exclude.indexOf(path.relative(path.join(base, "src", "files"), i)) != -1)
-				continue;
-
-			addFile(config, {
-				id: path.relative(path.join(base, "src", "files"), i),
-				data: fs.readFileSync(i).toString()
-			});
-		}
-		returnValue.smtpd = config;
+	if (fs.existsSync(path.join(base, "src", "config", "smtpd.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "smtpd.yaml"), 'utf-8');
+		if (file) returnValue.smtpd = yaml.parse(file);
 	}
 
-	{
-		var config = yaml.parse(fs.readFileSync(path.join(base, "src", "config", "queued-app.yaml")).toString());
+	if (fs.existsSync(path.join(base, "src", "config", "queued.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "queued.yaml"), 'utf-8');
+		if (file) returnValue.queued = yaml.parse(file);
+	}
 
-		var filePath = path.join(base, "src", "hooks", "queue", "predelivery.hsl");
-		if (fs.existsSync(filePath))
-		{
-			if (!config.scripting) config.scripting = {};
-			if (!config.scripting.hooks) config.scripting.hooks = {};
-			config.scripting.hooks.predelivery = fs.readFileSync(filePath).toString();
+	if (fs.existsSync(path.join(base, "src", "config", "smtpd-app.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "smtpd-app.yaml"), 'utf-8');
+		if (file) {
+			let config = yaml.parse(file);
+			const hooks = extractHooks(config);
+
+			var entries: any = Object.entries(hooks);
+			for (let [type, value] of entries)
+			{
+				for (let id of value)
+				{
+					var hookfolder = [type];
+					if (type == "eodrcpt")
+						hookfolder = ["eod", "rcpt"];
+					addHook(config, type, {
+						id: id,
+						data: fs.readFileSync(path.join(base, "src", "hooks", ...hookfolder, id + ".hsl")).toString()
+					});
+				}
+			}
+
+			for (let i of readdirSyncRecursive(path.join(base, "src", "files")))
+			{
+				var exclude: string[] = usersettings &&
+					usersettings.smtpd &&
+					usersettings.smtpd.build &&
+					usersettings.smtpd.build.exclude ? usersettings.smtpd.build.exclude : [];
+				if (exclude.indexOf(path.relative(path.join(base, "src", "files"), i)) != -1)
+					continue;
+
+				addFile(config, {
+					id: path.relative(path.join(base, "src", "files"), i),
+					data: fs.readFileSync(i).toString()
+				});
+			}
+			returnValue.smtpd_app = config;
 		}
+	}
 
-		filePath = path.join(base, "src", "hooks", "queue", "postdelivery.hsl");
-		if (fs.existsSync(filePath))
-		{
-			if (!config.scripting) config.scripting = {};
-			if (!config.scripting.hooks) config.scripting.hooks = {};
-			config.scripting.hooks.postdelivery = fs.readFileSync(filePath).toString();
+	if (fs.existsSync(path.join(base, "src", "config", "queued-app.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "queued-app.yaml"), 'utf-8');
+		if (file) {
+			let config = yaml.parse(file);
+
+			var filePath = path.join(base, "src", "hooks", "queue", "predelivery.hsl");
+			if (fs.existsSync(filePath))
+			{
+				if (!config.scripting) config.scripting = {};
+				if (!config.scripting.hooks) config.scripting.hooks = {};
+				config.scripting.hooks.predelivery = fs.readFileSync(filePath).toString();
+			}
+
+			filePath = path.join(base, "src", "hooks", "queue", "postdelivery.hsl");
+			if (fs.existsSync(filePath))
+			{
+				if (!config.scripting) config.scripting = {};
+				if (!config.scripting.hooks) config.scripting.hooks = {};
+				config.scripting.hooks.postdelivery = fs.readFileSync(filePath).toString();
+			}
+
+			for (let i of readdirSyncRecursive(path.join(base, "src", "files")))
+			{
+				var exclude: string[] = usersettings &&
+					usersettings.queued &&
+					usersettings.queued.build &&
+					usersettings.queued.build.exclude ? usersettings.queued.build.exclude : [];
+				if (exclude.indexOf(path.relative(path.join(base, "src", "files"), i)) != -1)
+					continue;
+
+				addFile(config, {
+					id: path.relative(path.join(base, "src", "files"), i),
+					data: fs.readFileSync(i).toString()
+				});
+			}
+			returnValue.queued_app = config;
 		}
+	}
 
-		for (let i of readdirSyncRecursive(path.join(base, "src", "files")))
-		{
-			var exclude : string[] = usersettings &&
-			usersettings.queued &&
-			usersettings.queued.build &&
-			usersettings.queued.build.exclude ? usersettings.queued.build.exclude : [];
-			if (exclude.indexOf(path.relative(path.join(base, "src", "files"), i)) != -1)
-				continue;
+	if (fs.existsSync(path.join(base, "src", "config", "httprd.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "httprd.yaml"), 'utf-8');
+		if (file) returnValue.httprd = yaml.parse(file);
+	}
 
-			addFile(config, {
-				id: path.relative(path.join(base, "src", "files"), i),
-				data: fs.readFileSync(i).toString()
-			});
-		}
-		returnValue.queued = config;
+	if (fs.existsSync(path.join(base, "src", "config", "rated.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "rated.yaml"), 'utf-8');
+		if (file) returnValue.rated = yaml.parse(file);
+	}
+
+	if (fs.existsSync(path.join(base, "src", "config", "dlpd.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "dlpd.yaml"), 'utf-8');
+		if (file) returnValue.dlpd = yaml.parse(file);
+	}
+
+	if (fs.existsSync(path.join(base, "src", "config", "dlpd-app.yaml"))) {
+		const file = fs.readFileSync(path.join(base, "src", "config", "dlpd-app.yaml"), 'utf-8');
+		if (file) returnValue.dlpd_app = yaml.parse(file);
 	}
 
 	validate.validate(returnValue);
