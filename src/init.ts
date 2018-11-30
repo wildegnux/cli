@@ -13,34 +13,6 @@ export const run = (base: string | null = '.', force: boolean = false) =>
 		throw '"src" folder already exists in current working directory';
 	}
 
-	if (!fs.existsSync(path.join(base, ".vscode")))
-		fs.mkdirSync(path.join(base, ".vscode"));
-	let settings: any = {};
-	if (fs.existsSync(path.join(base, '.vscode', 'settings.json')))
-		settings = JSON.parse(fs.readFileSync(path.join(base, '.vscode', 'settings.json'), 'utf-8'));
-	if (!settings)
-		settings = {};
-	settings["yaml.format.enable"] = true;
-	settings["yaml.schemas"] = {};
-	if (!settings["yaml.schemas"])
-		settings["yaml.schemas"] = {};
-	var schemas: string;
-	if (fs.existsSync(path.join(__dirname, "..", "node_modules", "@halon", "json-schemas"))) {
-		schemas = "file://" + path.join(__dirname, "..", "node_modules", "@halon", "json-schemas");
-	} else {
-		schemas = "file://" + path.join(__dirname, "..", "..", "json-schemas");
-	}
-	settings["yaml.schemas"][path.join(schemas, "smtpd.schema.json")] = "smtpd.yaml";
-	settings["yaml.schemas"][path.join(schemas, "smtpd-app.schema.json")] = "smtpd-app.yaml";
-	settings["yaml.schemas"][path.join(schemas, "queued.schema.json")] = "queued.yaml";
-	settings["yaml.schemas"][path.join(schemas, "queued-app.schema.json")] = "queued-app.yaml";
-	settings["yaml.schemas"][path.join(schemas, "dlpd.schema.json")] = "dlpd.yaml";
-	settings["yaml.schemas"][path.join(schemas, "dlpd-app.schema.json")] = "dlpd-app.yaml";
-	settings["yaml.schemas"][path.join(schemas, "httprd.schema.json")] = "httprd.yaml";
-	settings["yaml.schemas"][path.join(schemas, "rated.schema.json")] = "rated.yaml";
-	settings["yaml.schemas"][path.join(schemas, "rated-app.schema.json")] = "rated-app.yaml";
-	fs.writeFileSync(path.join(base, ".vscode", "settings.json"), JSON.stringify(settings, null, 4));
-
 	if (!fs.existsSync(path.join(base, "dist")))
 		fs.mkdirSync(path.join(base, "dist"));
 	fs.writeFileSync(path.join(base, "settings.json"), JSON.stringify(
